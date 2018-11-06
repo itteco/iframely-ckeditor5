@@ -8,7 +8,7 @@
     "build": "./node_modules/.bin/webpack --mode development"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@ckeditor/ckeditor5-basic-styles": "^10.0.3",
     "@ckeditor/ckeditor5-dev-utils": "^11.0.1",

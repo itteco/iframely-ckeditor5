@@ -40,7 +40,7 @@ ClassicEditor
                         
                         var iframeUrl = IFRAME_SRC + '?app=1&api_key=' + API_KEY + '&url=' + encodeURIComponent(url);
 
-						return (
+                        return (
                             '<div>' +
                                 '<div class="iframely-responsive">' +
                                     `<iframe src="${ iframeUrl }" ` +
@@ -48,8 +48,8 @@ ClassicEditor
                                     '</iframe>' +
                                 '</div>' +
                             '</div>'
-						);
-}
+                        );
+                    }
                 }
             ]
         }
@@ -67,6 +67,6 @@ ClassicEditor
 document.querySelector( '#resultButton' ).addEventListener( 'click' , function() {
     console.log(editorInstance.getData());
     document.querySelector( '#result' ).innerHTML = editorInstance.getData();
-})
+} );
 
 

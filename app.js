@@ -5,6 +5,8 @@ import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 
+import { IframelyMore, IframelyLess } from './iframely-more-less-plugin';
+
 var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'
 
 var API_KEY = 'Your API key from https://iframely.com/profile';
@@ -18,15 +20,27 @@ ClassicEditor
             // 'MediaEmbed' plugin required for ebmedding feature.
             MediaEmbed, 
 
+            IframelyLess,
+            IframelyMore,
+
             Essentials, Paragraph, Bold, Italic ],
 
-        toolbar: [ 'mediaEmbed', 'bold', 'italic' ],
+        toolbar: [ 
+            'mediaEmbed', 'bold', 'italic',
+            
+            'iframelyLess',
+            'iframelyMore'
+        ],
         
         // 'mediaEmbed' configuration is required for Iframely preview setup.
         mediaEmbed: {
 
+            // Previews are always enabled if there’s a provider for a URL (below regex catches all URLs)
+            // By default `previewsInData` are disabled, but let’s set it to `false` explicitely to be sure
+            previewsInData: false,
+
             // Enable previews.
-            previewsInData: true,
+            previewsInData: false,
 
             providers: [
                 {
@@ -57,6 +71,7 @@ ClassicEditor
     .then( editor => {
         console.log( 'Editor was initialized', editor );
         // Store editor to getData later.
+        window.editorInstance = editor;
         editorInstance = editor;
     } )
     .catch( error => {

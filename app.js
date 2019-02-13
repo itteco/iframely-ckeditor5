@@ -23,6 +23,8 @@ ClassicEditor
             IframelyLess,
             IframelyMore,
 
+            IframelyOptions,
+
             Essentials, Paragraph, Bold, Italic ],
 
         toolbar: [ 

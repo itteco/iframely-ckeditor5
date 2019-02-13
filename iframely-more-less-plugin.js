@@ -1,6 +1,6 @@
 
-import lessButton from './icons/less-button.svg';
-import moreButton from './icons/more-button.svg';
+import lessButton from './theme/icons/less-button.svg';
+import moreButton from './theme/icons/more-button.svg';
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
@@ -47,7 +47,7 @@ class IframelyOptionPlugin extends Plugin {
                     view.isVisible = false;
                 }
             });
-    
+
             return view;
         } );
     }

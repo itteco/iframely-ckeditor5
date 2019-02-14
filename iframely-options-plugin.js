@@ -3,52 +3,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 
 import OptionsView from './ui/optionsview';
-
-function parseUrlData(url) {
-    var parsedQuery = {};
-    var m = url && url.match && url.match(/(.+)\?(.+)/);
-    var base = url;
-    if (m) {
-        var query = m[2];
-        base = m[1];
-        var data = query.split("&");
-        for(var i = 0; i < data.length; i++) {
-            var item = data[i].split("=");
-            parsedQuery[item[0]] = decodeURIComponent(item[1]);
-        }
-    }
-    return {
-        path: base,
-        query: parsedQuery
-    };
-}
-
-function renderUrlData(urlData) {
-
-    var paramsStr = Object.keys(urlData.query).map(function(key) {
-        return key + '=' + encodeURIComponent(urlData.query[key]);
-    }).join('&');
-
-    if (paramsStr) {
-        return urlData.path + '?' + paramsStr
-    } else {
-        return urlData.path;
-    }
-}
-
-function trySendOptionForUrlData(urlData, optionData, enabled) {
-    if (enabled) {
-        urlData.query[optionData.key] = optionData.value;
-    } else {
-        delete urlData.query[optionData.key];
-    }
-}
-
-function trySetOption(src, optionData, enabled) {
-    var urlData = parseUrlData(src);
-    trySendOptionForUrlData(urlData, optionData, enabled);
-    return renderUrlData(urlData);
-}
+import { getUrlIframelyOptions, updateUrlIframelyOptions } from './utils';
 
 export default class IframelyOptions extends Plugin {
 
@@ -64,13 +19,15 @@ export default class IframelyOptions extends Plugin {
 
         const editor = this.editor;
 
+        this.optionsStorage = [];
+
         this._balloon = editor.plugins.get( ContextualBalloon );
 
         this.optionsView = new OptionsView( editor.locale );
 
         editor.model.document.on('change', () => {
-            var el = this.getCurrentMediaElement();
-            if (el) {
+            var mediaEl = this.getCurrentMediaElement();
+            if (mediaEl) {
                 // Show.
                 this.showOptionsView();
             } else {
@@ -83,14 +40,20 @@ export default class IframelyOptions extends Plugin {
 
             // TODO: no options - hide baloon? or disable old inputs?
 
-            // TODO: bad strategy. iframe will be regenerated.
-            widget.iframe.setAttribute('data-options', JSON.stringify(options));
+            var iframeView = editor.editing.view.domConverter.domToView(widget.iframe, {bind: false});
+            // TOOD: not sure if parrent is always figure.
+            var figureView = iframeView.parent;
+            var mediaModel = editor.editing.mapper.toModelElement( figureView );
 
-            if (this._balloon.hasView( this.optionsView ) && this.optionsView.currentIframe === widget.iframe) {
+            this.storeOptionsForModel(mediaModel, options);
+
+            var mediaEl = this.getCurrentMediaElement();
+            
+            if (this._balloon.hasView( this.optionsView ) && this.optionsView.currentMedia === mediaEl) {
 
                 // Update current balloon.
-                var urlData = parseUrlData(widget.iframe.src);
-                this.optionsView.setOptions(options, urlData.query, true);
+                var current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
+                this.optionsView.setOptions(options, current_iframely_options, true);
 
                 // TODO: bad timeout (need actual resize event?)
                 setTimeout(() => {
@@ -100,13 +63,49 @@ export default class IframelyOptions extends Plugin {
         });
 
         this.optionsView.on('change:checked', (evt, optionData, checked) => {
-            var oldSrc = this.optionsView.currentIframe.src;
-            var newSrc = trySetOption(oldSrc, optionData, checked);
-            if (newSrc !== oldSrc) {
-                // TOOD: store options values in model.
-                this.optionsView.currentIframe.src = newSrc;
-            }
+            editor.model.change( writer => {
+                var mediaEl = this.getCurrentMediaElement();
+                var url = this.getUpdatedUrlParams(mediaEl.getAttribute('url'), optionData, checked);
+                writer.setAttribute('url', url, mediaEl);
+            });
         });
+    }
+
+    getDataForEl(el) {
+        return this.optionsStorage.find((item) => {
+            return item.el === el;
+        });
+    }
+
+    storeOptionsForModel(el, options) {
+        var item = this.getDataForEl(el);
+        if (item) {
+            item.options = options;
+        } else {
+            this.optionsStorage.push({
+                el: el,
+                options: options
+            });
+        }
+    }
+
+    getOptionsForModel(el) {
+        var item = this.getDataForEl(el);
+        return item && item.options;
+    }
+
+    getUpdatedUrlParams(url, optionData, checked) {
+        var command = {};
+        if (checked) {
+            command.add = {
+                [optionData.key]: optionData.value
+            };
+        } else {
+            command.remove = {
+                [optionData.key]: 1
+            };
+        }
+        return updateUrlIframelyOptions(url, command)
     }
 
     getCurrentMediaElement() {
@@ -118,48 +117,42 @@ export default class IframelyOptions extends Plugin {
 
     showOptionsView() {
 
-        // TODO: bad timeout: how to get real selected iframe?
-        setTimeout(() => {
+        var mediaEl = this.editor.model.document.selection.getSelectedElement();
 
-            var media = document.querySelector( '.ck-widget_selected' );
-            var iframe = media && media.querySelector('iframe');
+        var optionsViewInBallon = this._balloon.hasView( this.optionsView );
 
-            var optionsViewInBallon = this._balloon.hasView( this.optionsView );
+        if (optionsViewInBallon && this.optionsView.currentMedia === mediaEl) {
+            return;
+        }
+        
+        if (mediaEl) {
 
-            if (optionsViewInBallon && this.optionsView.currentIframe === iframe) {
-                return;
-            }
+            var options = this.getOptionsForModel(mediaEl);
             
-            if (media && iframe) {
+            if (options && options.length) {
 
-                try {
-                    // TODO: bad strategy. iframe will be regenerated.
-                    // TODO: keep one optionsView for each iframe?
-                    var options = JSON.parse(iframe.getAttribute('data-options'));
-                } catch(ex) {}
+                var current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
 
-                if (options && options.length) {
+                this.optionsView.currentMedia = mediaEl;
+                this.optionsView.setOptions(options, current_iframely_options);
 
-                    this.optionsView.currentIframe = iframe;
-                    var urlData = parseUrlData(iframe.src);
-                    this.optionsView.setOptions(options, urlData.query);
+                var figureView = this.editor.editing.mapper.toViewElement(mediaEl);
+                var figureElement = this.editor.editing.view.domConverter.viewToDom(figureView);
 
-                    if (optionsViewInBallon) {
-                        this._balloon.updatePosition({
-                            target: media
-                        });
-                    } else {
-                        this._balloon.add( {
-                            view: this.optionsView,
-                            position: {
-                                target: media
-                            }
-                        });
-                    }
+                if (optionsViewInBallon) {
+                    this._balloon.updatePosition({
+                        target: figureElement
+                    });
+                } else {
+                    this._balloon.add( {
+                        view: this.optionsView,
+                        position: {
+                            target: figureElement
+                        }
+                    });
                 }
             }
-
-        }, 100);
+        }
     }
 
     hideOptionsView() {

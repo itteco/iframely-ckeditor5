@@ -5,7 +5,9 @@ import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 
+import IframelyEmbedProvider from './iframely-embed-provider';
 import { IframelyMore, IframelyLess } from './iframely-more-less-plugin';
+import IframelyOptions from './iframely-options-plugin';
 
 var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'
 
@@ -44,30 +46,10 @@ ClassicEditor
             // Enable previews.
             previewsInData: false,
 
-            providers: [
-                {
-                    name: 'iframely',
-
-                    // A URL regexp or an array of URL regexps:
-                    url: /.+/,
-
-                    html: match => {
-                        const url = match[ 0 ];
-                        
-                        var iframeUrl = IFRAME_SRC + '?app=1&api_key=' + API_KEY + '&url=' + encodeURIComponent(url);
-
-                        return (
-                            '<div>' +
-                                '<div class="iframely-responsive">' +
-                                    `<iframe src="${ iframeUrl }" ` +
-                                        'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>' +
-                                    '</iframe>' +
-                                '</div>' +
-                            '</div>'
-                        );
-                    }
-                }
-            ]
+            providers: [IframelyEmbedProvider({
+                iframe_path: IFRAME_SRC,
+                api_key: API_KEY
+            })]
         }
     } )
     .then( editor => {

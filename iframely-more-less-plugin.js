@@ -5,7 +5,7 @@ import moreButton from './theme/icons/more-button.svg';
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
-import parseUrl from 'url-parse';
+import { getUrlIframelyOptions, updateUrlIframelyOptions } from './utils';
 
 class IframelyOptionPlugin extends Plugin {
 
@@ -59,25 +59,36 @@ class IframelyOptionPlugin extends Plugin {
         }
     }
 
-    isIframelyOptionOn(el) {
-        var url = el.getAttribute('url');
-        var parsed = parseUrl(url, true);
-        if (parsed.query.iframely && parsed.query.iframely === this.iframelyValue) {
+    isIframelyOptionOnByUrl(url) {
+        var iframely_options = getUrlIframelyOptions(url);
+        if (iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
             return true;
         } else {
             return false;
         }
     }
 
+    isIframelyOptionOn(el) {
+        var url = el.getAttribute('url');
+        return this.isIframelyOptionOnByUrl(url);
+    }
+
     getUpdatedUrlParams(el) {
         var url = el.getAttribute('url');
-        var parsed = parseUrl(url, true);
-        if (parsed.query.iframely && parsed.query.iframely === this.iframelyValue) {
-            delete parsed.query.iframely;
+        var iframely_options = getUrlIframelyOptions(url);
+        if (iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
+            return updateUrlIframelyOptions(url, {
+                remove: {
+                    iframely: 1
+                }
+            });
         } else {
-            parsed.query.iframely = this.iframelyValue;
+            return updateUrlIframelyOptions(url, {
+                add: {
+                    iframely: this.iframelyValue
+                }
+            });
         }
-        return parsed.toString();
     }
 }
 

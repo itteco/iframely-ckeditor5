@@ -4,20 +4,28 @@
         <meta charset="utf-8">
         <title>CKEditor 5 Framework – Iframely - Preview</title>
         <script charset="utf-8" src="http://dev.iframe.ly/embed.js"></script>
+        <style>
+            #container {
+                max-width: 600px;
+                margin: auto;
+            }
+        </style>
     </head>
     <body>
-        <div id="editor">
-            <p>text</p>
-            <figure class="media"><oembed url="https://www.reverbnation.com/lawaters/song/28107835-real-friends-freestyle"></oembed></figure>
-            <p>text</p>
-            <figure class="media"><oembed url="https://www.youtube.com/watch?v=cStMgg5p1lU"></oembed></figure>
-            <p>text</p>
-        </div>
-        <br>
-        <button id="resultButton">Put result into page</button>
-        <br>
-        <div id="result">
+        <div id="container">
+            <div id="editor">
+                <p>text</p>
+                <figure class="media"><oembed url="https://www.reverbnation.com/lawaters/song/28107835-real-friends-freestyle"></oembed></figure>
+                <p>text</p>
+                <figure class="media"><oembed url="https://www.youtube.com/watch?v=cStMgg5p1lU"></oembed></figure>
+                <p>text</p>
+            </div>
+            <br>
+            <button id="resultButton">Put result into page</button>
+            <br>
+            <div id="result">
 
+            </div>
         </div>
     </body>
 </html>

@@ -53,19 +53,27 @@ export default class IframelyOptions extends Plugin {
 
             this.storeOptionsForModel(mediaModel, options);
 
-            var mediaEl = this.getCurrentMediaElement();
-            
-            if (this._balloon.hasView( this.optionsView ) && this.optionsView.currentMedia === mediaEl) {
+            if (this._balloon.hasView( this.optionsView )) {
 
-                var current_iframely_options = getUrlOptions(widget.iframe.src);
+                var currentIframe = this.getCurrentIframe();
 
-                // Update current balloon.
-                this.optionsView.setOptions(options, current_iframely_options, true);
+                if (currentIframe === widget.iframe) {
+                    var current_iframely_options = getUrlOptions(widget.iframe.src);
+    
+                    // Update current balloon.
+                    this.optionsView.setOptions(options, current_iframely_options, true);
+                }
+            }
+        });
 
-                // TODO: bad timeout (need actual resize event?)
-                setTimeout(() => {
-                    this._balloon.updatePosition();
-                }, 100);
+        iframely.on('heightChanged', iframe => {
+            if (this._balloon.hasView( this.optionsView )) {
+                var currentIframe = this.getCurrentIframe();
+                if (currentIframe === iframe) {
+                    this._balloon.updatePosition({
+                        target: iframe
+                    });
+                }
             }
         });
 
@@ -122,6 +130,14 @@ export default class IframelyOptions extends Plugin {
         }
     }
 
+    getCurrentIframe() {
+        var mediaEl = this.editor.model.document.selection.getSelectedElement();
+        var figureView = this.editor.editing.mapper.toViewElement(mediaEl);
+        var figureElement = this.editor.editing.view.domConverter.viewToDom(figureView);
+        var iframe = figureElement.querySelector('iframe');
+        return iframe;
+    }
+
     showOptionsView() {
 
         var mediaEl = this.editor.model.document.selection.getSelectedElement();
@@ -138,28 +154,22 @@ export default class IframelyOptions extends Plugin {
             
             if (options && options.length) {
 
-                var figureView = this.editor.editing.mapper.toViewElement(mediaEl);
-                var figureElement = this.editor.editing.view.domConverter.viewToDom(figureView);
+                var iframe = this.getCurrentIframe();
 
-                var iframe = figureElement.querySelector('iframe');
-
-                var current_iframely_options = iframe && iframe.src && getUrlOptions(iframe.src);
-                if (!current_iframely_options) {
-                    current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
-                }
+                var current_iframely_options = getUrlOptions(iframe.src);
 
                 this.optionsView.currentMedia = mediaEl;
                 this.optionsView.setOptions(options, current_iframely_options);
 
                 if (optionsViewInBallon) {
                     this._balloon.updatePosition({
-                        target: figureElement
+                        target: iframe
                     });
                 } else {
                     this._balloon.add( {
                         view: this.optionsView,
                         position: {
-                            target: figureElement
+                            target: iframe
                         }
                     });
                 }

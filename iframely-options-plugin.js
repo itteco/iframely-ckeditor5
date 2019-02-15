@@ -38,8 +38,6 @@ export default class IframelyOptions extends Plugin {
 
         iframely.on('options', (widget, options) => {
 
-            // TODO: no options - hide baloon? or disable old inputs?
-
             var iframeView = editor.editing.view.domConverter.domToView(widget.iframe, {bind: false});
             // TOOD: not sure if parrent is always figure.
             var figureView = iframeView.parent;

@@ -15,6 +15,8 @@ var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'
 
 var API_KEY = 'Your API key from https://iframely.com/profile';
 
+var parsedLocation = parseUrl(document.location.href, true);
+
 var editorInstance;
 
 function buildEditor() {
@@ -38,6 +40,8 @@ function buildEditor() {
                 'iframelyLess',
                 'iframelyMore'
             ],
+
+            whitelistedIframelyOptions: Object.keys(parsedLocation.query),
             
             // 'mediaEmbed' configuration is required for Iframely preview setup.
             mediaEmbed: {
@@ -48,7 +52,9 @@ function buildEditor() {
     
                 providers: [IframelyEmbedProvider({
                     iframe_path: IFRAME_SRC,
-                    api_key: API_KEY
+                    api_key: API_KEY,
+                    initial_iframely_options: parsedLocation.query,
+                    whitelisted_iframely_options: Object.keys(parsedLocation.query)
                 })]
             }
         } )
@@ -70,13 +76,11 @@ document.querySelector( '#resultButton' ).addEventListener( 'click' , function()
     }
 } );
 
-var parsed = parseUrl(document.location.href, true);
-
-document.querySelectorAll( 'oembed' ).forEach(item => {
-    var url = updateUrlIframelyOptions(item.getAttribute('url'), {
-        add: parsed.query
-    });
-    item.setAttribute('url', url);
-});
+// document.querySelectorAll( 'oembed' ).forEach(item => {
+//     var url = updateUrlIframelyOptions(item.getAttribute('url'), {
+//         add: parsedLocation.query
+//     });
+//     item.setAttribute('url', url);
+// });
 
 buildEditor();

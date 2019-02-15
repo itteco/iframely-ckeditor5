@@ -46,11 +46,11 @@ export default class OptionsView extends View {
                 // TODO: why not binded?
                 optionView.isReadOnly = false;
                 optionView.inputView.isReadOnly = false;
-                optionView.inputView.checked = initialValues[optionData.key] === optionData.value;
+                optionView.inputView.checked = initialValues && initialValues[optionData.key] === optionData.value;
             } else {
                 optionView = new LabeledInputView(this.locale, InputCheckboxView);
                 optionView.label = optionData.label;
-                optionView.inputView.checked = initialValues[optionData.key] === optionData.value;
+                optionView.inputView.checked = initialValues && initialValues[optionData.key] === optionData.value;
                 this.optionsDict[key] = optionView;
                 this.optionsView.add( optionView );
                 optionView.inputView.on('change:checked', () => {

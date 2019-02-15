@@ -61,7 +61,7 @@ class IframelyOptionPlugin extends Plugin {
 
     isIframelyOptionOnByUrl(url) {
         var iframely_options = getUrlIframelyOptions(url);
-        if (iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
+        if (iframely_options && iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
             return true;
         } else {
             return false;
@@ -76,7 +76,7 @@ class IframelyOptionPlugin extends Plugin {
     getUpdatedUrlParams(el) {
         var url = el.getAttribute('url');
         var iframely_options = getUrlIframelyOptions(url);
-        if (iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
+        if (iframely_options && iframely_options.iframely && iframely_options.iframely === this.iframelyValue) {
             return updateUrlIframelyOptions(url, {
                 remove: {
                     iframely: 1

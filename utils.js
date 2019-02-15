@@ -1,6 +1,11 @@
 
 import parseUrl from 'url-parse';
 
+export function getUrlOptions(url) {
+    var parsed = parseUrl(url, true);
+    return parsed.query;
+}
+
 export function getUrlIframelyOptions(url) {
     var parsed = parseUrl(url, true);
     var url_iframely_options;
@@ -9,7 +14,7 @@ export function getUrlIframelyOptions(url) {
             url_iframely_options = JSON.parse(parsed.query.iframely_options);
         } catch(ex) {}
     }
-    return url_iframely_options || {};
+    return url_iframely_options;
 }
 
 export function updateUrlIframelyOptions(url, command) {
@@ -33,11 +38,8 @@ export function updateUrlIframelyOptions(url, command) {
         });
     }
 
-    if (Object.keys(url_iframely_options).length === 0) {
-        delete parsed.query.iframely_options;
-    } else {
-        parsed.query.iframely_options = JSON.stringify(url_iframely_options);
-    }
+    // Leave empty iframely_options to override initial values.
+    parsed.query.iframely_options = JSON.stringify(url_iframely_options);
 
     return parsed.toString();
 }

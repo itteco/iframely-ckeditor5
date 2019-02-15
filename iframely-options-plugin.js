@@ -3,7 +3,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 
 import OptionsView from './ui/optionsview';
-import { getUrlIframelyOptions, updateUrlIframelyOptions } from './utils';
+import { getUrlIframelyOptions, getUrlOptions, updateUrlIframelyOptions } from './utils';
 
 export default class IframelyOptions extends Plugin {
 
@@ -36,6 +36,8 @@ export default class IframelyOptions extends Plugin {
             }
         });
 
+        var whitelistedIframelyOptions = editor.config.get( 'whitelistedIframelyOptions' );
+
         iframely.on('options', (widget, options) => {
 
             var iframeView = editor.editing.view.domConverter.domToView(widget.iframe, {bind: false});
@@ -43,14 +45,21 @@ export default class IframelyOptions extends Plugin {
             var figureView = iframeView.parent;
             var mediaModel = editor.editing.mapper.toModelElement( figureView );
 
+            if (whitelistedIframelyOptions && whitelistedIframelyOptions.length) {
+                options = options.filter && options.filter(item => {
+                    return whitelistedIframelyOptions.includes(item.key)
+                });
+            }
+
             this.storeOptionsForModel(mediaModel, options);
 
             var mediaEl = this.getCurrentMediaElement();
             
             if (this._balloon.hasView( this.optionsView ) && this.optionsView.currentMedia === mediaEl) {
 
+                var current_iframely_options = getUrlOptions(widget.iframe.src);
+
                 // Update current balloon.
-                var current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
                 this.optionsView.setOptions(options, current_iframely_options, true);
 
                 // TODO: bad timeout (need actual resize event?)
@@ -129,13 +138,18 @@ export default class IframelyOptions extends Plugin {
             
             if (options && options.length) {
 
-                var current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
+                var figureView = this.editor.editing.mapper.toViewElement(mediaEl);
+                var figureElement = this.editor.editing.view.domConverter.viewToDom(figureView);
+
+                var iframe = figureElement.querySelector('iframe');
+
+                var current_iframely_options = iframe && iframe.src && getUrlOptions(iframe.src);
+                if (!current_iframely_options) {
+                    current_iframely_options = getUrlIframelyOptions(mediaEl.getAttribute('url'));
+                }
 
                 this.optionsView.currentMedia = mediaEl;
                 this.optionsView.setOptions(options, current_iframely_options);
-
-                var figureView = this.editor.editing.mapper.toViewElement(mediaEl);
-                var figureElement = this.editor.editing.view.domConverter.viewToDom(figureView);
 
                 if (optionsViewInBallon) {
                     this._balloon.updatePosition({

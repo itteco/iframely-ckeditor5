@@ -3,7 +3,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 
 import OptionsView from './ui/optionsview';
-import { getUrlIframelyOptions, getUrlOptions, updateUrlIframelyOptions } from './utils';
+import { getUrlOptions, updateUrlIframelyOptions } from './utils';
 
 export default class IframelyOptions extends Plugin {
 
@@ -46,9 +46,13 @@ export default class IframelyOptions extends Plugin {
             var mediaModel = editor.editing.mapper.toModelElement( figureView );
 
             if (whitelistedIframelyOptions && whitelistedIframelyOptions.length) {
-                options = options.filter && options.filter(item => {
-                    return whitelistedIframelyOptions.includes(item.key)
+                var whitelistedOptins = {};
+                Object.keys(options).forEach(key => {
+                    if (whitelistedIframelyOptions.includes(key)) {
+                        whitelistedOptins[key] = options[key];
+                    }
                 });
+                options = whitelistedOptins;
             }
 
             this.storeOptionsForModel(mediaModel, options);
@@ -58,10 +62,10 @@ export default class IframelyOptions extends Plugin {
                 var currentIframe = this.getCurrentIframe();
 
                 if (currentIframe === widget.iframe) {
-                    var current_iframely_options = getUrlOptions(widget.iframe.src);
+                    var current_iframely_options_values = getUrlOptions(widget.iframe.src);
     
                     // Update current balloon.
-                    this.optionsView.setOptions(options, current_iframely_options, true);
+                    this.optionsView.setOptions(options, current_iframely_options_values, true);
                 }
             }
         });
@@ -77,10 +81,10 @@ export default class IframelyOptions extends Plugin {
             }
         });
 
-        this.optionsView.on('change:checked', (evt, optionData, checked) => {
+        this.optionsView.on('change:checked', (evt, optionData, value) => {
             editor.model.change( writer => {
                 var mediaEl = this.getCurrentMediaElement();
-                var url = this.getUpdatedUrlParams(mediaEl.getAttribute('url'), optionData, checked);
+                var url = this.getUpdatedUrlParams(mediaEl.getAttribute('url'), optionData, value);
                 writer.setAttribute('url', url, mediaEl);
             });
         });
@@ -109,18 +113,18 @@ export default class IframelyOptions extends Plugin {
         return item && item.options;
     }
 
-    getUpdatedUrlParams(url, optionData, checked) {
+    getUpdatedUrlParams(url, optionData, value) {
         var command = {};
-        if (checked) {
+        if (optionData.value !== value) {
             command.add = {
-                [optionData.key]: optionData.value
+                [optionData.key]: value
             };
         } else {
             command.remove = {
                 [optionData.key]: 1
             };
         }
-        return updateUrlIframelyOptions(url, command)
+        return updateUrlIframelyOptions(url, command);
     }
 
     getCurrentMediaElement() {
@@ -152,14 +156,14 @@ export default class IframelyOptions extends Plugin {
 
             var options = this.getOptionsForModel(mediaEl);
             
-            if (options && options.length) {
+            if (options) {
 
                 var iframe = this.getCurrentIframe();
 
-                var current_iframely_options = getUrlOptions(iframe.src);
+                var current_iframely_options_values = getUrlOptions(iframe.src);
 
                 this.optionsView.currentMedia = mediaEl;
-                this.optionsView.setOptions(options, current_iframely_options);
+                this.optionsView.setOptions(options, current_iframely_options_values);
 
                 if (optionsViewInBallon) {
                     this._balloon.updatePosition({
@@ -173,6 +177,10 @@ export default class IframelyOptions extends Plugin {
                         }
                     });
                 }
+
+            } else {
+
+                this.hideOptionsView();
             }
         }
     }

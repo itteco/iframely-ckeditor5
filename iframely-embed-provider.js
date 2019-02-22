@@ -38,6 +38,8 @@ export default function IframelyEmbedProvider(options) {
                         api_options_whitelisted[key] = api_options[key];
                     }
                 });
+            } else {
+                api_options_whitelisted = api_options;
             }
 
             parsedApiCall.query = Object.assign({

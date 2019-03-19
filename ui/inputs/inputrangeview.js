@@ -8,10 +8,10 @@ export default class InputRangeView extends View {
         this.set( 'value' );
         this.set( 'max' );
         this.set( 'min' );
-		this.set( 'id' );
-		this.set( 'isReadOnly', false );
-		this.set( 'hasError', false );
-		this.set( 'ariaDesribedById' );
+        this.set( 'id' );
+        this.set( 'isReadOnly', false );
+        this.set( 'hasError', false );
+        this.set( 'ariaDesribedById' );
 
 		const bind = this.bindTemplate;
 

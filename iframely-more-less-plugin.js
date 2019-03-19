@@ -5,7 +5,7 @@ import moreButton from './theme/icons/more-button.svg';
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
-import { getUrlIframelyOptions, updateUrlIframelyOptions } from './utils';
+import { getUrlIframelyOptions, updateUrlIframelyOptions } from './lib/utils';
 
 class IframelyOptionPlugin extends Plugin {
 

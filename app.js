@@ -5,10 +5,10 @@ import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 
-import IframelyEmbedProvider from './iframely-embed-provider';
+import IframelyEmbedProvider from './lib/iframely-embed-provider';
 import { IframelyMore, IframelyLess } from './iframely-more-less-plugin';
-import IframelyOptions from './iframely-options-plugin';
-import { updateUrlIframelyOptions } from './utils';
+import IframelyOptions from './lib/iframely-options-plugin';
+import { updateUrlIframelyOptions } from './lib/utils';
 import parseUrl from 'url-parse';
 
 var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'

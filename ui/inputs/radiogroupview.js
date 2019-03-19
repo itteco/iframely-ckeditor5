@@ -20,23 +20,22 @@ export default class RadiogroupView extends View {
         } );
     }
 
-    setKeyValues( name, keyValues, selectedValue ) {
+    setItems( name, items ) {
 
         this.radiogroupView.clear();
 
-        Object.keys(keyValues).forEach(key => {
-
-            var value = keyValues[key];
+        items && items.forEach(item => {
 
             var inputRadioView = new LabeledInputView(this.locale, InputRadioView);
-            inputRadioView.label = value;
+            inputRadioView.value = item.value;
+            inputRadioView.label = item.label;
             inputRadioView.inputView.name = name;
-            inputRadioView.inputView.checked = key === selectedValue;
+            inputRadioView.inputView.checked = item.checked;
 
             this.radiogroupView.add( inputRadioView );
 
             inputRadioView.inputView.on('change:checked', () => {
-                this.fire('change:checked', name, key, inputRadioView.inputView.checked);
+                this.fire('change:checked', name, item.value, inputRadioView.inputView.checked);
             });
         });
     }

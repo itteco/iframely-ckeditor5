@@ -1,14 +1,14 @@
 import View from '@ckeditor/ckeditor5-ui/src/view';
 
-export default class InputCheckboxView extends View {
+export default class InputRangeView extends View {
 
 	constructor( locale ) {
 		super( locale );
 
-		this.set( 'checked' );
+        this.set( 'value' );
+        this.set( 'max' );
+        this.set( 'min' );
 		this.set( 'id' );
-		this.set( 'name' );
-		this.set( 'value' );
 		this.set( 'isReadOnly', false );
 		this.set( 'hasError', false );
 		this.set( 'ariaDesribedById' );
@@ -18,22 +18,24 @@ export default class InputCheckboxView extends View {
 		this.setTemplate( {
 			tag: 'input',
 			attributes: {
-				type: 'radio',
+				type: 'range',
 				class: [
 					'ck',
 					'ck-input',
-					'ck-input-radio',
+					'ck-input-range',
 					bind.if( 'hasError', 'ck-error' )
 				],
-				id: bind.to( 'id' ),
-				name: bind.to( 'name' ),
+                id: bind.to( 'id' ),
+                value: bind.to( 'value' ),
+                max: bind.to( 'max' ),
+                min: bind.to( 'min' ),
 				disabled: bind.to( 'isReadOnly' ),
 				'aria-invalid': bind.if( 'hasError', true ),
 				'aria-describedby': bind.to( 'ariaDesribedById' )
 			},
 			on: {
 				change: bind.to( () => {
-					this.checked = this.element.checked;
+					this.value = this.element.value;
 				} )
 			}
 		} );
@@ -42,16 +44,16 @@ export default class InputCheckboxView extends View {
 	render() {
 		super.render();
 
-		const setChecked = checked => {
-			if (this.element.checked === !checked) {
-				this.element.checked = !!checked;
+		const setValue = value => {
+			if (this.element.value === !value) {
+				this.element.value = value;
 			}
 		};
 
-		setChecked( this.checked );
+		setValue( this.value );
 
-		this.on( 'change:checked', ( evt, name, checked ) => {
-			setChecked( checked );
+		this.on( 'change:value', ( evt, name, value ) => {
+			setValue( value );
 		} );
 	}
 }

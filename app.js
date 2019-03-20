@@ -8,7 +8,6 @@ import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import IframelyEmbedProvider from './lib/iframely-embed-provider';
 import { IframelyMore, IframelyLess } from './iframely-more-less-plugin';
 import IframelyOptions from './lib/iframely-options-plugin';
-import { updateUrlIframelyOptions } from './lib/utils';
 import parseUrl from 'url-parse';
 
 var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'
@@ -75,12 +74,5 @@ document.querySelector( '#resultButton' ).addEventListener( 'click' , function()
         document.querySelector( '#result' ).innerHTML = editorInstance.getData();
     }
 } );
-
-// document.querySelectorAll( 'oembed' ).forEach(item => {
-//     var url = updateUrlIframelyOptions(item.getAttribute('url'), {
-//         add: parsedLocation.query
-//     });
-//     item.setAttribute('url', url);
-// });
 
 buildEditor();

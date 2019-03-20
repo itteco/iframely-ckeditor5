@@ -6,7 +6,7 @@ class OptionView extends View {
 		super( locale );
 
 		this.set( 'value' );
-		this.set( 'label' );
+		this.set( 'text' );
 
 		const bind = this.bindTemplate;
 
@@ -20,7 +20,9 @@ class OptionView extends View {
 				value: bind.to( 'value' )
 			},
 			children: [
-				bind.to( 'label' )
+				{
+					text: bind.to( 'text' )
+				}
 			]
 		} );
 	}
@@ -34,7 +36,6 @@ export default class SelectView extends View {
 		this.set( 'id' );
 		this.set( 'name' );
 		this.set( 'value' );
-		this.set( 'options' );
 		this.set( 'isReadOnly', false );
 		this.set( 'hasError', false );
 		this.set( 'ariaDesribedById' );
@@ -65,8 +66,6 @@ export default class SelectView extends View {
 				} )
 			}
 		} );
-
-		this.setOptions( this.options );
 	}
 
 	setOptions( items ) {
@@ -94,10 +93,6 @@ export default class SelectView extends View {
 
 		this.on( 'change:value', ( evt, name, value ) => {
 			setValue( value );
-		} );
-
-		this.on( 'change:options', ( evt, name, options ) => {
-			this.setOptions( options );
 		} );
 	}
 }

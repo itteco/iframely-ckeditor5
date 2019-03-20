@@ -15,10 +15,16 @@ var defaultQueryById = {};
 var ElementsUI = {
     checkbox: {
         createView: function(context) {
-            var inputView = new LabeledInputView(this.locale, InputCheckboxView);
-            inputView.label = context.label;
-            inputView.inputView.checked = context.checked;
-            return inputView;
+            var view = new LabeledInputView(this.locale, InputCheckboxView);
+            view.label = context.label;
+            view.inputView.checked = context.checked;
+            return view;
+        },
+        getValue: function(view) {
+            return view.inputView.checked;
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            view.inputView.on('change:checked', submitOptionsCb);
         }
     },
     group: {
@@ -26,41 +32,83 @@ var ElementsUI = {
             var groupView = new OptionsView(this.locale);
             groupView.renderElements(context.elements);
             return groupView;
+        },
+        extendQuery: function(view, query) {
+            view.extendQuery(query);
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            view.bindEvents(submitOptionsCb);
         }
     },
     option: {
         createView: function(context) {
             var selectView = new LabeledInputView(this.locale, SelectView);
             selectView.label = context.label;
-            selectView.inputView.setItems( context.id, context.items );
+            selectView.inputView.setOptions( context.items );
             return selectView;
+        },
+        getValue: function(view) {
+            return view.inputView.value;
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            view.inputView.on('change:value', submitOptionsCb);
         }
     },
     radio: {
         createView: function(context) {
+            // TODO: inline
             var radiogroupView = new LabeledInputView(this.locale, RadiogroupView);
             radiogroupView.label = context.label || '';
             radiogroupView.inputView.setItems( context.id, context.items );
             return radiogroupView;
+        },
+        getValue: function(view) {
+            return view.inputView.value;
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            view.inputView.on('change:value', submitOptionsCb);
         }
     },
     range: {
         createView: function(context) {
-            var inputView = new LabeledInputView(this.locale, InputRangeView);
-            inputView.label = context.label;
-            inputView.inputView.value = context.value;
-            inputView.inputView.max = context.max;
-            inputView.inputView.min = context.min;
-            return inputView;
+            var view = new LabeledInputView(this.locale, InputRangeView);
+            view.label = context.label;
+            view.inputView.value = context.value;
+            view.inputView.max = context.max;
+            view.inputView.min = context.min;
+            return view;
+        },
+        getValue: function(view) {
+            return view.inputView.value;
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            view.inputView.on('change:value', submitOptionsCb);
         }
     },
     text: {
         createView: function(context) {
-            var inputView = new LabeledInputView(this.locale, InputTextView);
-            inputView.label = context.label;
-            inputView.inputView.value = context.value;
-            inputView.inputView.placeholder = context.placeholder;
-            return inputView;
+            var view = new LabeledInputView(this.locale, InputTextView);
+            view.label = context.label;
+            view.inputView.value = context.value;
+            view.inputView.placeholder = context.placeholder;
+            return view;
+        },
+        getValue: function(view) {
+            return view.inputView.element.value;
+        },
+        bindEvents: function(view, submitOptionsCb) {
+            var input = view.inputView.element;
+
+            iframely.addEventListener(input, 'click', function() {
+                input.select();
+            });
+            iframely.addEventListener(input, 'blur', submitOptionsCb);
+            iframely.addEventListener(input, 'keyup', function(e) {
+                // Apply on enter.
+                if (e.keyCode === 13) {
+                    submitOptionsCb();
+                }
+            });
         }
     }
 };
@@ -83,11 +131,51 @@ export default class OptionsView extends View {
     }
 
     renderElements( elements ) {
-        elements.forEach(element => {
+        this.elements = elements;
+        this.elements.forEach(element => {
             var elementUI = ElementsUI[element.type];
-            var elemenView = elementUI.createView(element.context);
-            this.optionsView.add( elemenView );
+            var elementView = elementUI.createView(element.context);
+            element.view = elementView;
+            this.optionsView.add(elementView);
         });
+    }
+
+    bindEvents( submitOptionsCb ) {
+        this.elements.forEach(element => {
+            var elementUI = ElementsUI[element.type];
+            var elementView = element.view;
+            elementUI.bindEvents(elementView, submitOptionsCb);
+        });
+    }
+
+    extendQuery( query ) {
+        this.elements.forEach(element => {
+            var elementUI = ElementsUI[element.type];
+            var view = element.view;
+            if (elementUI.getValue) {
+                var inputValue = elementUI.getValue(view);
+                Object.assign(query, element.getQuery(inputValue));
+            } else if (elementUI.extendQuery) {
+                elementUI.extendQuery(view, query);
+            }
+        });
+    }
+
+    getAndSubmitOptions() {
+        var query = {};
+
+        this.extendQuery(query);
+
+        var defaultQuery = this.defaultQuery;
+
+        Object.keys(defaultQuery).forEach(function(key) {
+            if (defaultQuery[key] === query[key] 
+                || query[key] === undefined) { // remove undefined so it's not included while JSON.stringify
+                delete query[key];
+            }
+        });
+
+        this.fire('change:query', query);
     }
 
     setOptions( options, iframeSrc ) {
@@ -114,33 +202,11 @@ export default class OptionsView extends View {
                 defaultQuery[key] = options[key].value;
             }
         });
+        this.defaultQuery = defaultQuery;
         
         this.renderElements(elements);
-        
-        // Object.keys(options).forEach(key => {
-
-        //     var optionData = options[key];
-
-        //     optionData.key = key;
-
-        //     if (typeof optionData.value === 'boolean') {
-
-                
-
-                
-        //         optionView.inputView.on('change:checked', () => {
-        //             this.fire('change:checked', optionData, optionView.inputView.checked ? 'true' : 'false');
-        //         });
-
-        //     } else if (optionData.values) {
-
-                
-
-                
-        //         optionView.inputView.on('change:checked', (evt, name, value, checked) => {
-        //             this.fire('change:checked', optionData, value);
-        //         });
-        //     }
-        // });
+        this.bindEvents(() => {
+            this.getAndSubmitOptions();
+        });
     }
 }

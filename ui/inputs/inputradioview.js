@@ -44,7 +44,7 @@ export default class InputCheckboxView extends View {
 		super.render();
 
 		const setChecked = checked => {
-			if (this.element.checked === !checked) {
+			if (this.element.checked == !checked) {
 				this.element.checked = !!checked;
 			}
 		};

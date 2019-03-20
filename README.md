@@ -39,11 +39,13 @@ Start web server:
 
 ## Important things
 
-Preview is managed by `embed.js` script. It must be included in editor and view pages:
+Preview is managed by `embed.js` script. It must be included in editor and view pages from Iframely cloud:
 
-    <script charset="utf-8" src="//cdn.iframe.ly/embed.js"></script>
+    <script src="//cdn.iframe.ly/embed.js" async charset="utf-8"></script>
 
-Api key is mandatory for Iframely usage. You can get it on https://iframely.com/profile and use like in `app.js`.
+Or, you can self-host the script. See its [GitHub repository](https://github.com/itteco/embedjs).
+
+API key is mandatory for Iframely usage. You can get it on https://iframely.com/profile and use like in `app.js`.
 
 CKEditor 5 uses `MediaEmbed` plugin for this feature, see `app.js` for mandatory configuration:
 

@@ -6,7 +6,6 @@ import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 
 import IframelyEmbedProvider from './lib/iframely-embed-provider';
-import { IframelyMore, IframelyLess } from './iframely-more-less-plugin';
 import IframelyOptions from './lib/iframely-options-plugin';
 import parseUrl from 'url-parse';
 
@@ -26,18 +25,12 @@ function buildEditor() {
                 // 'MediaEmbed' plugin required for ebmedding feature.
                 MediaEmbed, 
     
-                IframelyLess,
-                IframelyMore,
-    
                 IframelyOptions,
     
                 Essentials, Paragraph, Bold, Italic ],
     
             toolbar: [ 
-                'mediaEmbed', 'bold', 'italic',
-                
-                'iframelyLess',
-                'iframelyMore'
+                'mediaEmbed', 'bold', 'italic'
             ],
 
             whitelistedIframelyOptions: Object.keys(parsedLocation.query),

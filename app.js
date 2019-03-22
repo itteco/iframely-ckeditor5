@@ -42,9 +42,7 @@ function buildEditor() {
     
                 providers: [IframelyEmbedProvider({
                     iframe_path: IFRAME_SRC,
-                    api_key: API_KEY,
-                    initial_iframely_options: parsedLocation.query,
-                    whitelisted_iframely_options: Object.keys(parsedLocation.query)
+                    api_key: API_KEY
                 })]
             }
         } )

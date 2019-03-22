@@ -43,11 +43,11 @@ export default class OptionsView extends View {
 
     renderForm() {
         if (this.id && this.options) {
-            iframely.buildOptionsForm({
-                id:             this.id,
-                formContainer:  this.element,
-                options:        this.options
-            });
+            iframely.buildOptionsForm(
+                this.id,
+                this.element,
+                this.options
+            );
         }
     }
 }

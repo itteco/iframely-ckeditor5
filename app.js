@@ -33,8 +33,6 @@ function buildEditor() {
                 'mediaEmbed', 'bold', 'italic'
             ],
 
-            whitelistedIframelyOptions: Object.keys(parsedLocation.query),
-            
             // 'mediaEmbed' configuration is required for Iframely preview setup.
             mediaEmbed: {
     

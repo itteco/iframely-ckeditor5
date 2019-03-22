@@ -7,13 +7,6 @@ import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 
 import IframelyEmbedProvider from './lib/iframely-embed-provider';
 import IframelyOptions from './lib/iframely-options-plugin';
-import parseUrl from 'url-parse';
-
-var IFRAME_SRC = '//cdn.iframe.ly/api/iframe'
-
-var API_KEY = 'Your API key from https://iframely.com/profile';
-
-var parsedLocation = parseUrl(document.location.href, true);
 
 var editorInstance;
 

@@ -1,5 +1,7 @@
 import View from '@ckeditor/ckeditor5-ui/src/view';
 
+import { iframely } from '@iframely/embed.js/src/options/index';
+
 import parseUrl from 'url-parse';
 
 import '../theme/optionsview.css';

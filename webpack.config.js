@@ -20,6 +20,16 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.ejs$/,
+                loader: 'compile-ejs-loader',
+                options: {
+                    'htmlmin': true,
+                    'htmlminOptions': {
+                        removeComments: true
+                    }
+                }
+            },
+            {
                 // Or /ckeditor5-[^/]+\/theme\/icons\/[^/]+\.svg$/ if you want to limit this loader
                 // to CKEditor 5 icons only.
                 test: /\.svg$/,

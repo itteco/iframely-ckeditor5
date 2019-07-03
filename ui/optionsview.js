@@ -2,6 +2,8 @@ import View from '@ckeditor/ckeditor5-ui/src/view';
 
 import { iframely } from '@iframely/embed.js/src/options/index';
 
+import { getUrlWithoutIframelyOptions } from '../lib/utils';
+
 import parseUrl from 'url-parse';
 
 import '../theme/optionsview.css';
@@ -25,9 +27,10 @@ export default class OptionsView extends View {
         var parsed = parseUrl(iframeSrc, true);
         if (parsed.query.url) {
             // Id is 3rd party url.
-            this.id = parsed.query.url;
+            this.id = getUrlWithoutIframelyOptions(parsed.query.url);
         } else {
             // Id is short url id.
+            // TODO: is that supported by plugin?
             this.id = parsed.pathname;
         }
 
